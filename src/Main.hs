@@ -20,6 +20,7 @@ examples =
     ,(False, "<test")
     ,(True, "<?xml version=\"1.1\"?>\n<greeting>Hello, world!</greeting>")
     ,(True, "<foo bar.baz=\"qux\"></foo>")
+    ,(True, "<test><![CDATA[foo<x>]]</y>]><z>]baz]]></test>")
     ]
 
 main :: IO ()
@@ -80,5 +81,5 @@ rerender = inside
                     | otherwise = error "Invalid name"
         validAttr x | BS.notElem '\"' x = x
                     | otherwise = error "Invalid attribute"
-        validStr x | BS.notElem '<' x || BS.isInfixOf "<!--" x = x
+        validStr x | BS.notElem '<' x || BS.isInfixOf "<!--" x || BS.isInfixOf "<![CDATA[" x = x
                    | otherwise = error $ show ("Invalid string", x)

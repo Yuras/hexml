@@ -466,26 +466,44 @@ static str parse_content(document* d)
             // have found a </
             break;
         }
-        else if (peek_at(d, 1) == '!' && peek_at(d, 2) == '-' && peek_at(d, 3) == '-')
+        else if (peek_at(d, 1) == '!')
         {
-            skip(d, 3);
-            // you can't reuse the two '-' characters for the closing as well
-            if (peek_at(d, 0) == '\0' || peek_at(d, 1) == '\0')
+            if (peek_at(d, 2) == '-' && peek_at(d, 3) == '-')
             {
-                set_error(d, "Didn't get a closing comment");
-                return start_end(0, 0);
-            }
-            skip(d, 2);
-            for (;;)
-            {
-                if (!find(d, '>'))
+                skip(d, 3);
+                // you can't reuse the two '-' characters for the closing as well
+                if (peek_at(d, 0) == '\0' || peek_at(d, 1) == '\0')
                 {
                     set_error(d, "Didn't get a closing comment");
                     return start_end(0, 0);
                 }
-                skip(d, 1);
-                if (peek_at(d, -3) == '-' && peek_at(d, -2) == '-')
-                    break;
+                skip(d, 2);
+                for (;;)
+                {
+                    if (!find(d, '>'))
+                    {
+                        set_error(d, "Didn't get a closing comment");
+                        return start_end(0, 0);
+                    }
+                    skip(d, 1);
+                    if (peek_at(d, -3) == '-' && peek_at(d, -2) == '-')
+                        break;
+                }
+            } else if (d->end - d->cursor >= 9 && memcmp(d->cursor + 2, "[CDATA[", 7) == 0) {
+                skip(d, 9);
+                for (;;)
+                {
+                    if (!find(d, '>'))
+                    {
+                        set_error(d, "Didn't close CDATA");
+                        return start_end(0, 0);
+                    }
+                    skip(d, 1);
+                    if (peek_at(d, -3) == ']' && peek_at(d, -2) == ']')
+                        break;
+                }
+            } else {
+                parse_tag(d);
             }
         }
         else
