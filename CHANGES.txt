@@ -1,5 +1,6 @@
 Changelog for Hexml
 
+0.3.5, released 2024-08-25
     #1, add support for <![CDATA[ ... ]]>
 0.3.4, released 2018-09-10
     #15, licensed under BSD-3-Clause OR Apache-2.0
